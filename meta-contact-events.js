@@ -1,5 +1,6 @@
 /*
- * 상담 버튼 클릭을 메타 픽셀 "Contact"(문의) 이벤트로 보냅니다.
+ * 상담 버튼 클릭을 메타 픽셀 "Contact"(문의) 이벤트와
+ * 구글 애널리틱스(GA4) "contact_click" 이벤트로 보냅니다.
  * - 네이버 예약 링크(naver.me, booking.naver.com) → contact_method: naver_booking
  * - 전화(tel:) → contact_method: phone
  * - 카카오톡 채널 상담(pf.kakao.com) → contact_method: kakao
@@ -33,12 +34,22 @@
     if (!link) return;
     var method = classifyContactLink(link.getAttribute('href'));
     if (!method) return;
-    if (typeof root.fbq !== 'function') return;
-    root.fbq('track', 'Contact', {
-      contact_method: method,
-      content_name: labelOf(link),
-      page_path: root.location ? root.location.pathname : ''
-    });
+    var label = labelOf(link);
+    var pagePath = root.location ? root.location.pathname : '';
+    if (typeof root.fbq === 'function') {
+      root.fbq('track', 'Contact', {
+        contact_method: method,
+        content_name: label,
+        page_path: pagePath
+      });
+    }
+    if (typeof root.gtag === 'function') {
+      root.gtag('event', 'contact_click', {
+        contact_method: method,
+        link_text: label,
+        page_path: pagePath
+      });
+    }
   }
 
   var api = { classifyContactLink: classifyContactLink, handleClick: handleClick };
