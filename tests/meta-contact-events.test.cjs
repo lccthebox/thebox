@@ -1,4 +1,4 @@
-// 실행: node --test tests/
+// 실행: node --test tests/meta-contact-events.test.cjs
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -51,6 +51,38 @@ test('상담 버튼을 누르면 Contact 이벤트를 한 번 보낸다', () => 
   } finally {
     delete globalThis.fbq;
     delete globalThis.location;
+  }
+});
+
+test('구글 애널리틱스에도 contact_click을 한 번 보낸다', () => {
+  const gaCalls = [];
+  const fbCalls = [];
+  globalThis.gtag = (...args) => gaCalls.push(args);
+  globalThis.fbq = (...args) => fbCalls.push(args);
+  globalThis.location = { pathname: '/thebox/intro.html' };
+  try {
+    handleClick(fakeClick('http://pf.kakao.com/_lJpxjT/chat', '카카오톡 상담'));
+    handleClick(fakeClick('https://map.naver.com/p/entry/place/35708073', '리뷰 보기'));
+    assert.equal(fbCalls.length, 1);
+    assert.deepEqual(gaCalls, [
+      ['event', 'contact_click', { contact_method: 'kakao', link_text: '카카오톡 상담', page_path: '/thebox/intro.html' }],
+    ]);
+  } finally {
+    delete globalThis.gtag;
+    delete globalThis.fbq;
+    delete globalThis.location;
+  }
+});
+
+test('메타 픽셀이 막혀도 구글 애널리틱스는 보낸다', () => {
+  const gaCalls = [];
+  globalThis.gtag = (...args) => gaCalls.push(args);
+  try {
+    handleClick(fakeClick('tel:010-8673-9664', '전화 문의'));
+    assert.equal(gaCalls.length, 1);
+    assert.equal(gaCalls[0][2].contact_method, 'phone');
+  } finally {
+    delete globalThis.gtag;
   }
 });
 
