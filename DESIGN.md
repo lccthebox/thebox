@@ -43,3 +43,7 @@ The modal uses `role="dialog"`, `aria-modal`, a labelled title, focus containmen
 ## 8. Accepted debt
 
 The page remains a single static HTML file with inline CSS and JavaScript to match the existing deployment architecture. Existing third-party links and analytics are outside this footer-only change.
+
+## Accessibility corrections
+- Hero badge text uses dark brand blue/red; scroll guidance and statistics use #666 on light backgrounds. Footer copyright uses 65% white on the dark footer.
+- Instagram embeds have a descriptive title. Scrollable privacy tables expose a named focusable region. Layout, animation, content, and tracking remain unchanged.
